@@ -22,6 +22,7 @@ Ant Design (AntD): Biblioteca de componentes UI moderna e profissional.
 
 
 📦 Instalação e configuração do projeto
+
 1️⃣ Criar o projeto com Vite
 npm create vite@latest checklist-app -- --template react-ts
 
