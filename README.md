@@ -21,16 +21,21 @@ TypeScript: Adiciona tipagem estática ao JavaScript.
 Ant Design (AntD): Biblioteca de componentes UI moderna e profissional.
 
 
-Configuração e Início do Frontend (Pasta do Projeto React)
-Instale as dependências:
+📦 Instalação e configuração do projeto
+1️⃣ Criar o projeto com Vite
+npm create vite@latest checklist-app -- --template react-ts
 
-Bash
+Selecione:
 
-cd ../[Nome-da-sua-pasta-react] 
+Framework: React
+
+Template: TypeScript
+
+Rolldown: No
+
+2️⃣ Instalar dependências
+cd checklist-app
 npm install
-Inicie o cliente React:
 
-Bash
-
-npm run dev
-O aplicativo estará acessível em http://localhost:5173 (ou porta padrão do seu ambiente).
+3️⃣ Instalar o Ant Design
+npm install antd
