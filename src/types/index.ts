@@ -1,14 +1,14 @@
 export type TipoItem = 'Form' | 'Popup' | 'Grid';
 
-// 1. Interface para o Checkbox/Item de Validação
+export type StatusValidacao = 'pending' | 'approved' | 'adjust' | 'rejected';
+
 export interface ItemValidacao {
   id: string;
   descricao: string;
-  concluido: boolean;
-  dataAtualizacao?: Date; 
+  status: StatusValidacao;
+  dataAtualizacao?: Date;
 }
 
-// 2. Interface para a Feature Principal (Agrupador de Testes)
 export interface FeaturePrincipal {
   id: string;
   titulo: string;
