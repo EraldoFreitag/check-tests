@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Collapse, Tag, Space } from 'antd';
 import type { CollapseProps } from 'antd';
-import type { FeaturePrincipal, TipoItem, StatusValidacao } from '../types';
+import type { FeaturePrincipal, TipoItem, StatusValidacao, HistoricoItem } from '../types';
 import ListaValidacoes from './ListaValidacoes';
 import HeaderActions from './HeaderActions';
 
@@ -11,8 +11,26 @@ const DADOS_INICIAIS: FeaturePrincipal[] = [
     titulo: 'Checklist Formulário',
     tipo: 'Form',
     validacoes: [
-      { id: '1', descricao: 'Tamanho dos campos igual ao tamanho da coluna no BD', status: 'approved' },
-      { id: '2', descricao: 'Testar campos obrigatórios (Required)', status: 'pending' },
+      {
+        id: '1',
+        descricao: 'Tamanho dos campos igual ao tamanho da coluna no BD',
+        status: 'approved',
+        comentario: '',
+        dataAtualizacao: new Date(),
+        historico: [
+          { status: 'approved', data: new Date(), acao: 'Item criado como aprovado', },
+        ],
+      },
+      {
+        id: '2',
+        descricao: 'Testar campos obrigatórios (Required)',
+        status: 'pending',
+        comentario: '',
+        dataAtualizacao: new Date(),
+        historico: [
+          { status: 'pending', data: new Date(), acao: 'Item criado como pendente', },
+        ],
+      },
     ],
   },
   {
@@ -20,8 +38,26 @@ const DADOS_INICIAIS: FeaturePrincipal[] = [
     titulo: 'Checklist Popup',
     tipo: 'Popup',
     validacoes: [
-      { id: '1', descricao: 'Tamanho dos campos igual ao tamanho da coluna no BD', status: 'approved' },
-      { id: '2', descricao: 'Testar campos obrigatórios (Required)', status: 'pending' },
+      {
+        id: '1',
+        descricao: 'Tamanho dos campos igual ao tamanho da coluna no BD',
+        status: 'approved',
+        comentario: '',
+        dataAtualizacao: new Date(),
+        historico: [
+          { status: 'approved', data: new Date(), acao: 'Item criado como aprovado', },
+        ],
+      },
+      {
+        id: '2',
+        descricao: 'Testar campos obrigatórios (Required)',
+        status: 'pending',
+        comentario: '',
+        dataAtualizacao: new Date(),
+        historico: [
+          { status: 'pending', data: new Date(), acao: 'Item criado como pendente', },
+        ],
+      },
     ],
   },
   {
@@ -29,8 +65,26 @@ const DADOS_INICIAIS: FeaturePrincipal[] = [
     titulo: 'Checklist Grid',
     tipo: 'Grid',
     validacoes: [
-      { id: '1', descricao: 'Tamanho dos campos igual ao tamanho da coluna no BD', status: 'approved' },
-      { id: '2', descricao: 'Testar campos obrigatórios (Required)', status: 'pending' },
+      {
+        id: '1',
+        descricao: 'Tamanho dos campos igual ao tamanho da coluna no BD',
+        status: 'approved',
+        comentario: '',
+        dataAtualizacao: new Date(),
+        historico: [
+          { status: 'approved', data: new Date(), acao: 'Item criado como aprovado', },
+        ],
+      },
+      {
+        id: '2',
+        descricao: 'Testar campos obrigatórios (Required)',
+        status: 'pending',
+        comentario: '',
+        dataAtualizacao: new Date(),
+        historico: [
+          { status: 'pending', data: new Date(), acao: 'Item criado como pendente', },
+        ],
+      },
     ],
   },
 ];
@@ -53,17 +107,30 @@ const FeatureList: React.FC = () => {
 
   /** Marcar / desmarcar TODAS as validações */
   const handleToggleAllValidacoes = (featureId: string, approved: boolean) => {
+    const now = new Date();
+    const status: StatusValidacao = approved ? 'approved' : 'pending';
+
     setFeatures(prev =>
       prev.map(feature =>
         feature.id === featureId
           ? {
-              ...feature,
-              validacoes: feature.validacoes.map(v => ({
-                ...v,
-                status: approved ? 'approved' : 'pending',
-                dataAtualizacao: new Date(),
-              })),
-            }
+            ...feature,
+            validacoes: feature.validacoes.map(v => ({
+              ...v,
+              status,
+              dataAtualizacao: now,
+              historico: [
+                ...(v.historico || []),
+                {
+                  status,
+                  data: now,
+                  acao: approved
+                    ? 'Validação aprovada em massa'
+                    : 'Validação reprovada em massa',
+                },
+              ],
+            })),
+          }
           : feature
       )
     );
@@ -75,17 +142,52 @@ const FeatureList: React.FC = () => {
     validacaoId: string,
     status: StatusValidacao
   ) => {
+    const now = new Date();
+
     setFeatures(prev =>
       prev.map(feature =>
         feature.id === featureId
           ? {
-              ...feature,
-              validacoes: feature.validacoes.map(v =>
-                v.id === validacaoId
-                  ? { ...v, status, dataAtualizacao: new Date() }
-                  : v
-              ),
-            }
+            ...feature,
+            validacoes: feature.validacoes.map(v =>
+              v.id === validacaoId
+                ? {
+                  ...v,
+                  status,
+                  dataAtualizacao: now,
+                  historico: [
+                    ...(v.historico || []),
+                    {
+                      status,
+                      data: now,
+                      acao: `Status alterado para ${status}`,
+                    },
+                  ],
+                }
+                : v
+            ),
+          }
+          : feature
+      )
+    );
+  };
+
+  const handleChangeComentario = (
+    featureId: string,
+    validacaoId: string,
+    comentario: string
+  ) => {
+    setFeatures(prev =>
+      prev.map(feature =>
+        feature.id === featureId
+          ? {
+            ...feature,
+            validacoes: feature.validacoes.map(v =>
+              v.id === validacaoId
+                ? { ...v, comentario }
+                : v
+            ),
+          }
           : feature
       )
     );
@@ -126,6 +228,7 @@ const FeatureList: React.FC = () => {
             validacoes={feature.validacoes}
             featureId={feature.id}
             onChangeStatus={handleToggleValidacao}
+            onChangeComentario={handleChangeComentario}
           />
         ),
       };

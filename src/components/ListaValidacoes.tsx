@@ -1,65 +1,117 @@
-import React from 'react';
-import { List, Tag, Select } from 'antd';
-import type { ItemValidacao, StatusValidacao } from '../types';
-import { STATUS_CONFIG } from '../helper/StatusConfig';
+import React, { useState } from 'react';
+import { List, Checkbox, Input, Button, Space, Timeline } from 'antd';
+import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import type { StatusValidacao } from '../types';
 
-interface ListaValidacoesProps {
-  validacoes: ItemValidacao[];
+interface Props {
+  validacoes: any[];
   featureId: string;
   onChangeStatus: (
     featureId: string,
     validacaoId: string,
     status: StatusValidacao
   ) => void;
+  onChangeComentario: (
+    featureId: string,
+    validacaoId: string,
+    comentario: string
+  ) => void;
 }
 
-const ListaValidacoes: React.FC<ListaValidacoesProps> = ({
+const ListaValidacoes: React.FC<Props> = ({
   validacoes,
-  onChangeStatus,
   featureId,
-}) => (
-  <List
-    dataSource={validacoes}
-    renderItem={(item) => {
-      const statusConfig = STATUS_CONFIG[item.status];
+  onChangeStatus,
+  onChangeComentario,
+}) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-      return (
-        <List.Item
-          actions={[
-            <Select
-              key="status"
-              value={item.status}
-              onChange={(value: StatusValidacao) =>
-                onChangeStatus(featureId, item.id, value)
-              }
-              style={{ width: 160 }}
-            >
-              {Object.entries(STATUS_CONFIG).map(([key, config]) => (
-                <Select.Option key={key} value={key}>
-                  <Tag color={config.color}>{config.label}</Tag>
-                </Select.Option>
-              ))}
-            </Select>,
-          ]}
-        >
-          <List.Item.Meta
-            title={
-              <span
+  const toggleExpand = (id: string) => {
+    setExpandedId(prev => (prev === id ? null : id));
+  };
+
+  return (
+    <List
+      dataSource={validacoes}
+      renderItem={item => {
+        const expanded = expandedId === item.id;
+
+        return (
+          <List.Item style={{ padding: '8px 0' }}>
+            <div style={{ width: '100%' }}>
+              {/* Linha principal */}
+              <div
                 style={{
-                  textDecoration:
-                    item.status === 'approved'
-                      ? 'line-through'
-                      : 'none',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
-                {item.descricao}
-              </span>
-            }
-          />
-        </List.Item>
-      );
-    }}
-  />
-);
+                <Space>
+                  <span
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => toggleExpand(item.id)}
+                  >
+                    {expanded ? <DownOutlined /> : <RightOutlined />}
+                  </span>
+
+                  <Checkbox
+                    checked={item.status === 'approved'}
+                    onChange={e =>
+                      onChangeStatus(
+                        featureId,
+                        item.id,
+                        e.target.checked ? 'approved' : 'pending'
+                      )
+                    }
+                  />
+
+                  <span>{item.descricao}</span>
+                </Space>
+              </div>
+
+              {/* Área expandida */}
+              {expanded && (
+                <div style={{ marginTop: 8, paddingLeft: 32 }}>
+                  {/* Comentário */}
+                  <Input.TextArea
+                    rows={2}
+                    placeholder="Adicionar comentário..."
+                    value={item.comentario}
+                    onChange={e =>
+                      onChangeComentario(
+                        featureId,
+                        item.id,
+                        e.target.value
+                      )
+                    }
+                  />
+
+                  <div style={{ marginTop: 8 }}>
+                    <Button size="small" type="primary">
+                      Salvar comentário
+                    </Button>
+                  </div>
+
+                  {/* Histórico */}
+                  {item.historico?.length > 0 && (
+                    <div style={{ marginTop: 12 }}>
+                      <Timeline
+                        items={item.historico.map((h: any, index: number) => ({
+                          key: index,
+                          children: `${h.status === 'approved' ? 'Aprovado' : 'Pendente'} - ${new Date(h.data).toLocaleString()}`,
+                        }))}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </List.Item>
+        );
+      }}
+    />
+  );
+};
 
 export default ListaValidacoes;
