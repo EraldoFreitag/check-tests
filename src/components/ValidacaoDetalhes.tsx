@@ -1,74 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import { Input, Button, Space, Tag, Divider, Timeline } from 'antd';
+import React, { useState } from 'react';
+import { Input, Button, Space, Timeline } from 'antd';
 import type { ItemValidacao } from '../types';
 import { formatDateTime } from '../helper/date';
 
-interface ValidacaoDetalhesProps {
+interface Props {
   item: ItemValidacao;
   onChangeComentario: (comentario: string) => void;
 }
 
-const ValidacaoDetalhes: React.FC<ValidacaoDetalhesProps> = ({
+const ValidacaoDetalhes: React.FC<Props> = ({
   item,
   onChangeComentario,
 }) => {
-  const [comentarioTemp, setComentarioTemp] = useState(item.comentario || '');
-  const [salvo, setSalvo] = useState(true);
-
-  useEffect(() => {
-    setComentarioTemp(item.comentario || '');
-    setSalvo(true);
-  }, [item.id]);
+  const [comentario, setComentario] = useState(item.comentario || '');
 
   const handleSalvar = () => {
-    onChangeComentario(comentarioTemp);
-    setSalvo(true);
+    onChangeComentario(comentario);
   };
 
   return (
-    <Space direction="vertical" size={6} style={{ width: '100%' }}>
+    <Space direction="vertical" style={{ width: '100%' }}>
       {/* COMENTÁRIO */}
       <Input.TextArea
         rows={3}
-        value={comentarioTemp}
-        onChange={(e) => {
-          setComentarioTemp(e.target.value);
-          setSalvo(false);
-        }}
+        value={comentario}
         placeholder="Digite um comentário..."
+        onChange={(e) => setComentario(e.target.value)}
       />
 
-      {/* AÇÕES */}
-      <Space size={8}>
-        <Button
-          type="primary"
-          size="small"
-          onClick={handleSalvar}
-          disabled={salvo}
-        >
-          Salvar comentário
-        </Button>
+      <Button
+        type="primary"
+        size="small"
+        disabled={comentario === item.comentario}
+        onClick={handleSalvar}
+      >
+        Salvar comentário
+      </Button>
 
-        {salvo && item.comentario && <Tag color="success">Salvo</Tag>}
-        {!salvo && <Tag color="warning">Não salvo</Tag>}
-      </Space>
 
       {/* HISTÓRICO */}
       {item.historico && item.historico.length > 0 && (
-        <>
-          <Divider style={{ margin: '8px 0' }} />
-
-          <Timeline
-            items={item.historico.map((h, index) => ({
-              key: index,
-              children: (
-                <span style={{ fontSize: 12 }}>
-                  <b>{h.acao}</b> — {formatDateTime(h.data)}
-                </span>
-              ),
-            }))}
-          />
-        </>
+        <Timeline
+          items={item.historico.map((h, index) => ({
+            key: index,
+            children: (
+              <div>
+                <b>{h.acao}</b>
+                <div style={{ fontSize: 12, color: '#8c8c8c' }}>
+                  {formatDateTime(h.data)}
+                </div>
+              </div>
+            ),
+          }))}
+        />
       )}
     </Space>
   );

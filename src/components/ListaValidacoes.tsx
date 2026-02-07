@@ -87,7 +87,7 @@ const ListaValidacoes: React.FC<Props> = ({
                     }
                   />
 
-                  <div style={{ marginTop: 8 }}>
+                  <div style={{ marginTop: 10, marginBottom: 5 }}>
                     <Button size="small" type="primary">
                       Salvar comentário
                     </Button>
